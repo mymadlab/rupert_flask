@@ -10,7 +10,7 @@ from rupert_prosumer import RupertProsumer
 
 # Configure settings
 events_dir = os.environ['RUPERT_EVENTS_DIR']
-settings_file = os.environ['RUPERT_SETTINGS_FILE']
+settings_file = os.environ['RUPERT_CONFIG_JSON']
 
 prosumer = RupertProsumer(settings_file)
 

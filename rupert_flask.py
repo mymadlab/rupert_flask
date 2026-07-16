@@ -10,9 +10,9 @@ from rupert_prosumer import RupertProsumer
 
 # Configure settings
 events_dir = os.environ['RUPERT_EVENTS_DIR']
-settings_file = os.environ['RUPERT_CONFIG_JSON']
+config_json = os.environ['RUPERT_CONFIG_JSON']
 
-prosumer = RupertProsumer(settings_file)
+prosumer = RupertProsumer(config_json)
 
 @beartype
 def json_load(json_file: str) -> dict:
@@ -102,3 +102,11 @@ def event(event_type: str, name: str, event_profile: str) -> str:
 		f"Running action of Type: {escape(event_type)} Name: {escape(name)} "
 		f"Profile: {escape(event_profile)}"
 	)
+
+@beartype
+@app.route("/hello")
+def event(event_type: str, name: str, event_profile: str) -> str:
+	"""
+	Hello check to confirm the API is working.
+	"""
+	return "Hello, world!"

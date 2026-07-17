@@ -105,7 +105,7 @@ def event(event_type: str, name: str, event_profile: str) -> str:
 
 @beartype
 @app.route("/hello")
-def event()-> str:
+def hello() -> str:
 	"""
 	Hello check to confirm the API is working.
 	"""

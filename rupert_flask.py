@@ -56,7 +56,7 @@ def send_event(topic: str, event_dict: dict) -> None:
 	"""
 	# If environment variable RUPERT_TESTING is not set send the event
 	if not os.getenv('RUPERT_TESTING'):
-		prosumer.send(topic,json.dumps(event_dict))
+		prosumer.send(topic, json.dumps(event_dict).encode('utf-8'))
 
 @beartype
 def state_cycle(navigate: str, category: str, file: str) -> None:

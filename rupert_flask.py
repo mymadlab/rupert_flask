@@ -1,6 +1,7 @@
 """
 Description: Rupert API for initiating events via HTTP calls.
 """
+import asyncio
 import json
 import os
 from beartype import beartype
@@ -32,7 +33,7 @@ def json_save(json_file: str, contents: dict) -> None:
 		json.dump(contents, outfile)
 
 @beartype
-def run_actions(actions: list[dict]) -> None:
+async def run_actions(actions: list[dict]) -> None:
 	"""
 	Run a list of actions.
 	"""
@@ -47,16 +48,16 @@ def run_actions(actions: list[dict]) -> None:
 					action["action"]["category"],
 					action["action"]["file"])
 		else:
-			send_event(action['topic'], action['action'])
+			await send_event(action['topic'], action['action'])
 
 @beartype
-def send_event(topic: str, event_dict: dict) -> None:
+async def send_event(topic: str, event_dict: dict) -> None:
 	"""
 	Send an event to a specified topic.
 	"""
 	# If environment variable RUPERT_TESTING is not set send the event
 	if not os.getenv('RUPERT_TESTING'):
-		prosumer.send(topic, json.dumps(event_dict).encode('utf-8'))
+		await prosumer.send(topic, json.dumps(event_dict).encode('utf-8'))
 
 @beartype
 def state_cycle(navigate: str, category: str, file: str) -> None:
@@ -88,7 +89,7 @@ app = Flask(__name__)
 
 @beartype
 @app.route("/event/<event_type>/<name>/<event_profile>")
-def event(event_type: str, name: str, event_profile: str) -> str:
+async def event(event_type: str, name: str, event_profile: str) -> str:
 	"""
 	Run an action profile based on event type and name.
 	"""
@@ -97,7 +98,7 @@ def event(event_type: str, name: str, event_profile: str) -> str:
 	f"{escape(name)}/"
 	f"{escape(event_profile)}.json"
 	)
-	run_actions(profile['actions'])
+	asyncio.get_running_loop().create_task(run_actions(profile['actions']))
 	return (
 		f"Running action of Type: {escape(event_type)} Name: {escape(name)} "
 		f"Profile: {escape(event_profile)}"

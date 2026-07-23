@@ -1,5 +1,5 @@
 """
-Description: Rupert API for initiating events via HTTP calls.
+Description: Rupert Flask interface for API's and browser clients.
 """
 import asyncio
 import json
@@ -10,7 +10,7 @@ from markupsafe import escape
 from rupert_prosumer import RupertProsumer
 
 # Configure settings
-events_dir = os.environ['RUPERT_EVENTS_DIR']
+actions_dir = os.environ['RUPERT_ACTIONS_DIR']
 config_json = os.environ['RUPERT_CONFIG_JSON']
 
 prosumer = RupertProsumer(config_json)
@@ -38,7 +38,7 @@ async def run_actions(actions: list[dict]) -> None:
 	Run a list of actions.
 	"""
 	for action in actions:
-		if action["action"]["event_type"] == "state":
+		if action["action"]["action_type"] == "state":
 			if action["action"]["state_type"] == "cycle":
 				state_cycle(action["action"]["navigate"],
 					action["action"]["category"],
@@ -48,23 +48,23 @@ async def run_actions(actions: list[dict]) -> None:
 					action["action"]["category"],
 					action["action"]["file"])
 		else:
-			await send_event(action['topic'], action['action'])
+			await send_action(action['topic'], action['action'])
 
 @beartype
-async def send_event(topic: str, event_dict: dict) -> None:
+async def send_action(topic: str, action_dict: dict) -> None:
 	"""
-	Send an event to a specified topic.
+	Send an action to a specified topic.
 	"""
-	# If environment variable RUPERT_TESTING is not set send the event
+	# If environment variable RUPERT_TESTING is not set send the action
 	if not os.getenv('RUPERT_TESTING'):
-		await prosumer.send(topic, json.dumps(event_dict).encode('utf-8'))
+		await prosumer.send(topic, json.dumps(action_dict).encode('utf-8'))
 
 @beartype
 def state_cycle(navigate: str, category: str, file: str) -> None:
 	"""
-	Cycle through the states of an event.
+	Cycle through the states of an action.
 	"""
-	state = json_load(f"{events_dir}/state/{category}/{file}")
+	state = json_load(f"{actions_dir}/state/{category}/{file}")
 	if navigate == ">": # Next
 		state["current"] = state["current"] + 1 if state["current"] + 1 < len(state["actions"]) else 0
 	elif navigate == "<": # Previous
@@ -73,35 +73,34 @@ def state_cycle(navigate: str, category: str, file: str) -> None:
    		if state["current"] - 1 >= 0
    		else len(state["actions"]) - 1
 		)
-	json_save(f"{events_dir}/state/{category}/{file}", state)
+	json_save(f"{actions_dir}/state/{category}/{file}", state)
 	run_actions(state["actions"][state["current"]]["actions"])
 
 @beartype
 def state_cycle_set(new_current: int, category: str, file: str) -> None:
 	"""
-	Set the current state of an event.
+	Set the current state of an action.
 	"""
-	state = json_load(f"{events_dir}/state/{category}/{file}")
+	state = json_load(f"{actions_dir}/state/{category}/{file}")
 	state["current"] = new_current
-	json_save(f"{events_dir}/state/{category}/{file}", state)
+	json_save(f"{actions_dir}/state/{category}/{file}", state)
 
 app = Flask(__name__)
 
+# API's
 @beartype
-@app.route("/event/<event_type>/<name>/<event_profile>")
-async def event(event_type: str, name: str, event_profile: str) -> str:
+@app.route("/api/action/<action_type>/<name>")
+async def api_action(action_type: str, name: str) -> str:
 	"""
-	Run an action profile based on event type and name.
+	Run an action profile based on action type and name.
 	"""
 	profile = json_load(
-	f"{events_dir}/{escape(event_type)}/"
-	f"{escape(name)}/"
-	f"{escape(event_profile)}.json"
+	f"{actions_dir}/{escape(action_type)}/"
+	f"{escape(name)}.json"
 	)
 	asyncio.get_running_loop().create_task(run_actions(profile['actions']))
 	return (
-		f"Running action of Type: {escape(event_type)} Name: {escape(name)} "
-		f"Profile: {escape(event_profile)}"
+		f"Running action of Type: {escape(action_type)} Name: {escape(name)} "
 	)
 
 @beartype

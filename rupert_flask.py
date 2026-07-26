@@ -87,6 +87,22 @@ def state_cycle_set(new_current: int, category: str, file: str) -> None:
 
 app = Flask(__name__)
 
+# Media
+# API's
+@beartype
+@app.route("/Master")
+def api_action() -> str:
+	"""
+	Display media player controls for a specific room
+	"""
+	HTML = "<html><head><title>Media Player Controls</title></head><body>"
+	HTML += f"<h1>Media Player Controls for Room: Master</h1>"
+	HTML += f"<p><a href='/api/action/master/sleep'>Play Sleep</a></p>"
+	HTML += f"<p><a href='/api/action/master/pause'>Pause</a></p>"
+	HTML += "</body></html>"
+	return HTML
+
+
 # API's
 @beartype
 @app.route("/api/action/<action_type>/<name>")

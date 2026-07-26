@@ -97,8 +97,8 @@ def master() -> str:
 	"""
 	HTML = "<html><head><title>Media Player Controls</title></head><body>"
 	HTML += f"<h1>Media Player Controls for Room: Master</h1>"
-	HTML += f"<p style=\"font-size: 250%;\"><a href='/api/action/master/sleep'>Play Sleep</a></p>"
-	HTML += f"<p style=\"font-size: 250%;\"><a href='/api/action/master/pause'>Pause</a></p>"
+	HTML += f"<p style=\"font-size: 350%;\"><a href='/api/action/master/sleep'>Play Sleep</a></p>"
+	HTML += f"<p style=\"font-size: 350%;\"><a href='/api/action/master/pause'>Pause</a></p>"
 	HTML += "</body></html>"
 	return HTML
 

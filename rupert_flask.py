@@ -90,8 +90,8 @@ app = Flask(__name__)
 # Media
 # API's
 @beartype
-@app.route("/Master")
-def api_action() -> str:
+@app.route("/master")
+def master() -> str:
 	"""
 	Display media player controls for a specific room
 	"""

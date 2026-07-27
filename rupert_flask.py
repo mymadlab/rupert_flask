@@ -5,7 +5,7 @@ import asyncio
 import json
 import os
 from beartype import beartype
-from flask import Flask
+from flask import Flask, Response
 from markupsafe import escape
 from rupert_prosumer import RupertProsumer
 
@@ -91,7 +91,7 @@ app = Flask(__name__)
 # API's
 @beartype
 @app.route("/master")
-def master() -> str:
+def master() -> Response:
 	"""
 	Display media player controls for a specific room
 	"""
@@ -100,7 +100,7 @@ def master() -> str:
 	HTML += f"<p style=\"font-size: 350%;\"><a href='/api/action/master/sleep'>Play Sleep</a></p>"
 	HTML += f"<p style=\"font-size: 350%;\"><a href='/api/action/master/pause'>Pause</a></p>"
 	HTML += "</body></html>"
-	return HTML
+	return Response(HTML, mimetype='text/html')
 
 
 # API's

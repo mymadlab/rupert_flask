@@ -60,11 +60,11 @@ async def send_action(topic: str, action_dict: dict) -> None:
 		await prosumer.send(topic, json.dumps(action_dict).encode('utf-8'))
 
 @beartype
-def state_cycle(navigate: str, category: str, file: str) -> None:
+def state_cycle(navigate: str, type: str, file: str) -> None:
 	"""
 	Cycle through the states of an action.
 	"""
-	state = json_load(f"{actions_dir}/state/{category}/{file}")
+	state = json_load(f"{actions_dir}/{type}/state/{file}")
 	if navigate == ">": # Next
 		state["current"] = state["current"] + 1 if state["current"] + 1 < len(state["actions"]) else 0
 	elif navigate == "<": # Previous
@@ -73,22 +73,22 @@ def state_cycle(navigate: str, category: str, file: str) -> None:
    		if state["current"] - 1 >= 0
    		else len(state["actions"]) - 1
 		)
-	json_save(f"{actions_dir}/state/{category}/{file}", state)
+	json_save(f"{actions_dir}/{type}/state/{file}", state)
 	run_actions(state["actions"][state["current"]]["actions"])
 
 @beartype
-def state_cycle_set(new_current: int, category: str, file: str) -> None:
+def state_cycle_set(new_current: int, type: str, file: str) -> None:
 	"""
 	Set the current state of an action.
 	"""
-	state = json_load(f"{actions_dir}/state/{category}/{file}")
+	state = json_load(f"{actions_dir}/{type}/state/{file}")
 	state["current"] = new_current
-	json_save(f"{actions_dir}/state/{category}/{file}", state)
+	json_save(f"{actions_dir}/{type}/state/{file}", state)
 
 app = Flask(__name__)
 
 # Media
-# API's
+# Static
 @beartype
 @app.route("/master")
 def master() -> Response:
@@ -106,7 +106,7 @@ def master() -> Response:
 # API's
 @beartype
 @app.route("/api/action/<action_type>/<name>")
-async def api_action(action_type: str, name: str) -> str:
+async def api_action(action_type: str, name: str) -> Response:
 	"""
 	Run an action profile based on action type and name.
 	"""
@@ -116,13 +116,13 @@ async def api_action(action_type: str, name: str) -> str:
 	)
 	asyncio.get_running_loop().create_task(run_actions(profile['actions']))
 	return (
-		f"Running action of Type: {escape(action_type)} Name: {escape(name)} "
+		Response(f"Running action of Type: {escape(action_type)} Name: {escape(name)} ", mimetype='text/plain')
 	)
 
 @beartype
 @app.route("/hello")
-def hello() -> str:
+def hello() -> Response:
 	"""
 	Hello check to confirm the API is working.
 	"""
-	return "Hello, world!"
+	return Response("Hello, world!", mimetype='text/plain')

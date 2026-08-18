@@ -1,0 +1,20 @@
+{
+	"kafka": {
+		"connection": {
+			"bootstrap.servers": "localhost:9092"
+		},
+		"consumer": {
+			"group.id": "rupert-flask-behave-tests",
+			"auto.offset.reset": "earliest"
+		},
+		"topics": {
+			"flask.testing": "flask.testing"
+		}
+	},
+	"logging": {
+		"log_file": "rupert-flask.behave.log",
+		"rotation": null,
+		"retention": null,
+		"level": "INFO"
+	}
+}

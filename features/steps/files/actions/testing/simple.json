@@ -1,0 +1,10 @@
+{
+	"actions": [
+		{
+			"topic": "flask.testing",
+			"action": {
+				"command": "test"
+			}
+		}
+	]
+}
